@@ -29,4 +29,10 @@ Task<DocumentDetailsDto?> RejectDocumentAsync(
     int documentId,
     int engineerId,
     UploadDocumentRequest request);
+
+    
+Task<DocumentFileResult?> GetDocumentFileAsync(
+    int versionId,
+    int userId,
+    string role);
 }

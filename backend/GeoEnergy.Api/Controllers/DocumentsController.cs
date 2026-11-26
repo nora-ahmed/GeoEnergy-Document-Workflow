@@ -174,4 +174,62 @@ public async Task<IActionResult> ResubmitDocument(
     }
 }
 
+[HttpGet("versions/{versionId:int}/preview")]
+public async Task<IActionResult> PreviewDocument(int versionId)
+{
+    var userId = int.Parse(
+        User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    var role = User.FindFirstValue(ClaimTypes.Role)!;
+
+    try
+    {
+        var file = await _documentService.GetDocumentFileAsync(
+            versionId, userId, role);
+
+        if (file == null)
+            return NotFound(new { message = "File not found." });
+
+        Response.Headers["Content-Disposition"] =
+            $"inline; filename=\"{Uri.EscapeDataString(file.FileName)}\"";
+
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+
+        return File(file.Content, file.ContentType);
+    }
+    catch (UnauthorizedAccessException)
+    {
+        return Forbid();
+    }
+}
+
+[HttpGet("versions/{versionId:int}/download")]
+public async Task<IActionResult> DownloadDocument(int versionId)
+{
+    var userId = int.Parse(
+        User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    var role = User.FindFirstValue(ClaimTypes.Role)!;
+
+    try
+    {
+        var file = await _documentService.GetDocumentFileAsync(
+            versionId, userId, role);
+
+        if (file == null)
+            return NotFound(new { message = "File not found." });
+
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+
+        return File(
+            file.Content,
+            file.ContentType,
+            file.FileName);
+    }
+    catch (UnauthorizedAccessException)
+    {
+        return Forbid();
+    }
+}
+
 }
