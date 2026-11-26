@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
+using GeoEnergy.Api.Services.Documents;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Register authentication service
 builder.Services.AddScoped<IAuthService, AuthService>();
-
+builder.Services.AddScoped<IDocumentService, DocumentService>();
 // Configure JWT authentication
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
 
