@@ -98,5 +98,10 @@ public class ApplicationDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50);
         });
+        modelBuilder.Entity<Document>()
+    .HasOne(d => d.ApprovedVersion)
+    .WithMany()
+    .HasForeignKey(d => d.ApprovedVersionId)
+    .OnDelete(DeleteBehavior.Restrict);
     }
 }

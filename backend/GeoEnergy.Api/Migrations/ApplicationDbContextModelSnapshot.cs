@@ -23,6 +23,9 @@ namespace GeoEnergy.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("ApprovedVersionId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Department")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -57,6 +60,8 @@ namespace GeoEnergy.Api.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApprovedVersionId");
 
                     b.HasIndex("ReviewedById");
 
@@ -173,6 +178,11 @@ namespace GeoEnergy.Api.Migrations
 
             modelBuilder.Entity("GeoEnergy.Api.Models.Document", b =>
                 {
+                    b.HasOne("GeoEnergy.Api.Models.DocumentVersion", "ApprovedVersion")
+                        .WithMany()
+                        .HasForeignKey("ApprovedVersionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("GeoEnergy.Api.Models.User", "ReviewedBy")
                         .WithMany()
                         .HasForeignKey("ReviewedById")
@@ -183,6 +193,8 @@ namespace GeoEnergy.Api.Migrations
                         .HasForeignKey("UploadedById")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("ApprovedVersion");
 
                     b.Navigation("ReviewedBy");
 

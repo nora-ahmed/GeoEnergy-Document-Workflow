@@ -374,4 +374,108 @@ private static string? GetFileExtension(
 
     return null;
 }
+
+public async Task<DocumentDetailsDto?> ApproveDocumentAsync(
+    int documentId,
+    int managerId)
+{
+    await using var transaction =
+        await _context.Database.BeginTransactionAsync();
+
+    var document = await _context.Documents
+        .Include(d => d.Versions)
+        .FirstOrDefaultAsync(d => d.Id == documentId);
+
+    if (document == null)
+        return null;
+
+    if (document.Status != "Pending Approval")
+        throw new InvalidOperationException(
+            "Only pending documents can be approved.");
+
+    var latestVersion = document.Versions
+        .OrderByDescending(v => v.VersionNumber)
+        .FirstOrDefault();
+
+    if (latestVersion == null)
+        throw new InvalidOperationException(
+            "This document has no uploaded version.");
+
+    var now = DateTime.UtcNow;
+
+    document.Status = "Approved";
+    document.ReviewedById = managerId;
+    document.ReviewedAt = now;
+    document.RejectionComment = null;
+    document.ApprovedVersionId = latestVersion.Id;
+
+    _context.DocumentHistory.Add(new DocumentHistory
+    {
+        DocumentId = document.Id,
+        UserId = managerId,
+        Action = "Approved",
+        Comment = $"Approved version {latestVersion.VersionNumber}.",
+        CreatedAt = now
+    });
+
+    await _context.SaveChangesAsync();
+    await transaction.CommitAsync();
+
+    return await GetDocumentByIdAsync(
+        documentId, managerId, "Manager");
+}
+
+public async Task<DocumentDetailsDto?> RejectDocumentAsync(
+    int documentId,
+    int managerId,
+    string comment)
+{
+    if (string.IsNullOrWhiteSpace(comment))
+        throw new ArgumentException(
+            "A rejection comment is required.");
+
+    await using var transaction =
+        await _context.Database.BeginTransactionAsync();
+
+    var document = await _context.Documents
+        .Include(d => d.Versions)
+        .FirstOrDefaultAsync(d => d.Id == documentId);
+
+    if (document == null)
+        return null;
+
+    if (document.Status != "Pending Approval")
+        throw new InvalidOperationException(
+            "Only pending documents can be rejected.");
+
+    var latestVersion = document.Versions
+        .OrderByDescending(v => v.VersionNumber)
+        .FirstOrDefault();
+
+    if (latestVersion == null)
+        throw new InvalidOperationException(
+            "This document has no uploaded version.");
+
+    var now = DateTime.UtcNow;
+
+    document.Status = "Rejected";
+    document.ReviewedById = managerId;
+    document.ReviewedAt = now;
+    document.RejectionComment = comment.Trim();
+
+    _context.DocumentHistory.Add(new DocumentHistory
+    {
+        DocumentId = document.Id,
+        UserId = managerId,
+        Action = "Rejected",
+        Comment = $"Version {latestVersion.VersionNumber}: {comment.Trim()}",
+        CreatedAt = now
+    });
+
+    await _context.SaveChangesAsync();
+    await transaction.CommitAsync();
+
+    return await GetDocumentByIdAsync(
+        documentId, managerId, "Manager");
+}
 }

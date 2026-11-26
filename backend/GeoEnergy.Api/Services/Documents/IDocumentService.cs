@@ -16,4 +16,13 @@ public interface IDocumentService
         Task<DocumentDetailsDto> UploadDocumentAsync(
     UploadDocumentRequest request,
     int userId);
+
+    Task<DocumentDetailsDto?> ApproveDocumentAsync(
+    int documentId,
+    int managerId);
+
+Task<DocumentDetailsDto?> RejectDocumentAsync(
+    int documentId,
+    int managerId,
+    string comment);
 }
