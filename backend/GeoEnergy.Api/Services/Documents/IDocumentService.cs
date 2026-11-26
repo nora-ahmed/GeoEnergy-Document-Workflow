@@ -35,4 +35,7 @@ Task<DocumentFileResult?> GetDocumentFileAsync(
     int versionId,
     int userId,
     string role);
+    Task<DocumentDashboardDto> GetDashboardAsync(
+    int userId,
+    string role);
 }
