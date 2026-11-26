@@ -138,4 +138,40 @@ public async Task<IActionResult> RejectDocument(
         return Conflict(new { message = ex.Message });
     }
 }
+
+[HttpPost("{id:int}/resubmit")]
+[Authorize(Roles = "Engineer")]
+[Consumes("multipart/form-data")]
+[RequestSizeLimit(11 * 1024 * 1024)]
+public async Task<IActionResult> ResubmitDocument(
+    int id,
+    [FromForm] UploadDocumentRequest request)
+{
+    var engineerId = int.Parse(
+        User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    try
+    {
+        var document = await _documentService.ResubmitDocumentAsync(
+            id, engineerId, request);
+
+        if (document == null)
+            return NotFound(new { message = "Document not found." });
+
+        return Ok(document);
+    }
+    catch (ArgumentException ex)
+    {
+        return BadRequest(new { message = ex.Message });
+    }
+    catch (UnauthorizedAccessException)
+    {
+        return Forbid();
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Conflict(new { message = ex.Message });
+    }
+}
+
 }
