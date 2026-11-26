@@ -22,6 +22,10 @@ public class Document
 
     public string? RejectionComment { get; set; }
 
+    public int? ApprovedVersionId { get; set; }
+
+public DocumentVersion? ApprovedVersion { get; set; }
+
     public ICollection<DocumentVersion> Versions { get; set; }
         = new List<DocumentVersion>();
 

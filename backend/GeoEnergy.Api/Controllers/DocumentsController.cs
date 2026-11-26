@@ -86,4 +86,56 @@ public async Task<IActionResult> UploadDocument(
         return Unauthorized();
     }
 }
+
+[HttpPost("{id:int}/approve")]
+[Authorize(Roles = "Manager")]
+public async Task<IActionResult> ApproveDocument(int id)
+{
+    var managerId = int.Parse(
+        User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    try
+    {
+        var document = await _documentService.ApproveDocumentAsync(
+            id, managerId);
+
+        if (document == null)
+            return NotFound(new { message = "Document not found." });
+
+        return Ok(document);
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Conflict(new { message = ex.Message });
+    }
+}
+
+[HttpPost("{id:int}/reject")]
+[Authorize(Roles = "Manager")]
+public async Task<IActionResult> RejectDocument(
+    int id,
+    [FromBody] RejectDocumentRequest request)
+{
+    var managerId = int.Parse(
+        User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    try
+    {
+        var document = await _documentService.RejectDocumentAsync(
+            id, managerId, request.Comment);
+
+        if (document == null)
+            return NotFound(new { message = "Document not found." });
+
+        return Ok(document);
+    }
+    catch (ArgumentException ex)
+    {
+        return BadRequest(new { message = ex.Message });
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Conflict(new { message = ex.Message });
+    }
+}
 }
