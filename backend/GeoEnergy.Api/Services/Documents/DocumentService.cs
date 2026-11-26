@@ -617,4 +617,63 @@ public async Task<DocumentDetailsDto?> ResubmitDocumentAsync(
     }
 }
 
+public async Task<DocumentFileResult?> GetDocumentFileAsync(
+    int versionId,
+    int userId,
+    string role)
+{
+    if (role != "Engineer" && role != "Manager")
+        throw new UnauthorizedAccessException();
+
+    var version = await _context.DocumentVersions
+        .Include(v => v.Document)
+        .FirstOrDefaultAsync(v => v.Id == versionId);
+
+    if (version == null)
+        return null;
+
+    // Engineers can only access their own documents.
+    if (role == "Engineer" &&
+        version.Document.UploadedById != userId)
+        throw new UnauthorizedAccessException();
+
+    var uploadDirectory = Path.GetFullPath(
+        Path.Combine(_environment.ContentRootPath, "Uploads"));
+
+    var fullPath = Path.GetFullPath(
+        Path.Combine(_environment.ContentRootPath, version.FilePath));
+
+    // Prevent access outside the Uploads directory.
+    var allowedPrefix = uploadDirectory + Path.DirectorySeparatorChar;
+
+    if (!fullPath.StartsWith(
+        allowedPrefix,
+        StringComparison.OrdinalIgnoreCase))
+        throw new UnauthorizedAccessException();
+
+    if (!System.IO.File.Exists(fullPath))
+        return null;
+
+    var extension = Path.GetExtension(fullPath).ToLowerInvariant();
+
+    var contentType = extension switch
+    {
+        ".pdf" => "application/pdf",
+        ".jpg" or ".jpeg" => "image/jpeg",
+        ".png" => "image/png",
+        ".webp" => "image/webp",
+        _ => throw new InvalidOperationException(
+            "Unsupported file type.")
+    };
+
+    var content = await System.IO.File.ReadAllBytesAsync(fullPath);
+
+    return new DocumentFileResult
+    {
+        Content = content,
+        ContentType = contentType,
+        FileName = version.OriginalFileName
+    };
+}
+
 }
