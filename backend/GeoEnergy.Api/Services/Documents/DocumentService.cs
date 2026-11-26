@@ -675,5 +675,59 @@ public async Task<DocumentFileResult?> GetDocumentFileAsync(
         FileName = version.OriginalFileName
     };
 }
+public async Task<DocumentDashboardDto> GetDashboardAsync(
+    int userId,
+    string role)
+{
+    var documents = _context.Documents
+        .AsNoTracking()
+        .AsQueryable();
 
+    // Apply role-based access.
+    if (role == "Engineer")
+    {
+        documents = documents.Where(d => d.UploadedById == userId);
+    }
+    else if (role != "Manager")
+    {
+        throw new UnauthorizedAccessException(
+            "You are not authorized to view the dashboard.");
+    }
+
+    var totalDocuments = await documents.CountAsync();
+
+    var pendingApproval = await documents.CountAsync(
+        d => d.Status == "Pending Approval");
+
+    var approved = await documents.CountAsync(
+        d => d.Status == "Approved");
+
+    var rejected = await documents.CountAsync(
+        d => d.Status == "Rejected");
+
+    var recentDocuments = await documents
+        .OrderByDescending(d => d.UploadedAt)
+        .Take(5)
+        .Select(d => new DocumentListItemDto
+        {
+            Id = d.Id,
+            Title = d.Title,
+            Department = d.Department,
+            DocumentType = d.DocumentType,
+            Status = d.Status,
+            UploadedByName = d.UploadedBy.FullName,
+            UploadedAt = d.UploadedAt,
+            ReviewedAt = d.ReviewedAt
+        })
+        .ToListAsync();
+
+    return new DocumentDashboardDto
+    {
+        TotalDocuments = totalDocuments,
+        PendingApproval = pendingApproval,
+        Approved = approved,
+        Rejected = rejected,
+        RecentDocuments = recentDocuments
+    };
+}
 }

@@ -231,5 +231,25 @@ public async Task<IActionResult> DownloadDocument(int versionId)
         return Forbid();
     }
 }
+[HttpGet("dashboard")]
+public async Task<IActionResult> GetDashboard()
+{
+    var userId = int.Parse(
+        User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    var role = User.FindFirstValue(ClaimTypes.Role)!;
+
+    try
+    {
+        var result = await _documentService.GetDashboardAsync(
+            userId, role);
+
+        return Ok(result);
+    }
+    catch (UnauthorizedAccessException)
+    {
+        return Forbid();
+    }
+}
 
 }
