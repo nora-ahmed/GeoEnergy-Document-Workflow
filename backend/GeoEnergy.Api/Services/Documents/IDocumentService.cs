@@ -25,4 +25,8 @@ Task<DocumentDetailsDto?> RejectDocumentAsync(
     int documentId,
     int managerId,
     string comment);
+    Task<DocumentDetailsDto?> ResubmitDocumentAsync(
+    int documentId,
+    int engineerId,
+    UploadDocumentRequest request);
 }

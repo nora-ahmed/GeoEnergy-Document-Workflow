@@ -478,4 +478,143 @@ public async Task<DocumentDetailsDto?> RejectDocumentAsync(
     return await GetDocumentByIdAsync(
         documentId, managerId, "Manager");
 }
+
+public async Task<DocumentDetailsDto?> ResubmitDocumentAsync(
+    int documentId,
+    int engineerId,
+    UploadDocumentRequest request)
+{
+    if (request.File == null)
+        throw new ArgumentException("A file is required.");
+
+    var file = request.File;
+
+    const long maxFileSize = 10 * 1024 * 1024;
+
+    if (file.Length == 0)
+        throw new ArgumentException("The uploaded file is empty.");
+
+    if (file.Length > maxFileSize)
+        throw new ArgumentException("Maximum file size is 10 MB.");
+
+    // Find the engineer.
+    var user = await _context.Users
+        .FirstOrDefaultAsync(u => u.Id == engineerId);
+
+    if (user == null)
+        throw new UnauthorizedAccessException("User not found.");
+
+    // Validate the actual file signature.
+    await using var inputStream = file.OpenReadStream();
+
+    var header = new byte[12];
+    var bytesRead = await inputStream.ReadAsync(header.AsMemory());
+
+    var extension = GetFileExtension(header, bytesRead);
+
+    if (extension == null)
+        throw new ArgumentException(
+            "Only PDF, JPEG, PNG and WebP files are allowed.");
+
+    var storedFileName = $"{Guid.NewGuid():N}{extension}";
+
+    var uploadDirectory = Path.Combine(
+        _environment.ContentRootPath,
+        "Uploads");
+
+    Directory.CreateDirectory(uploadDirectory);
+
+    var fullPath = Path.Combine(uploadDirectory, storedFileName);
+    var relativePath = Path.Combine("Uploads", storedFileName);
+
+    await using var transaction =
+        await _context.Database.BeginTransactionAsync();
+
+    try
+    {
+        var document = await _context.Documents
+            .Include(d => d.Versions)
+            .FirstOrDefaultAsync(d => d.Id == documentId);
+
+        if (document == null)
+            return null;
+
+        // Only the original engineer can resubmit.
+        if (document.UploadedById != engineerId)
+            throw new UnauthorizedAccessException(
+                "You can only resubmit your own documents.");
+
+        // Only rejected documents can be resubmitted.
+        if (document.Status != "Rejected")
+            throw new InvalidOperationException(
+                "Only rejected documents can be resubmitted.");
+
+        var nextVersionNumber = document.Versions
+            .Max(v => v.VersionNumber) + 1;
+
+        // Save the new physical file.
+        inputStream.Position = 0;
+
+        await using (var outputStream = new FileStream(
+            fullPath,
+            FileMode.CreateNew,
+            FileAccess.Write,
+            FileShare.None,
+            81920,
+            FileOptions.Asynchronous))
+        {
+            await inputStream.CopyToAsync(outputStream);
+        }
+
+        var now = DateTime.UtcNow;
+
+        // Create the new version.
+        var version = new DocumentVersion
+        {
+            DocumentId = document.Id,
+            VersionNumber = nextVersionNumber,
+            FilePath = relativePath,
+            OriginalFileName = Path.GetFileName(file.FileName),
+            UploadedById = engineerId,
+            UploadedAt = now
+        };
+
+        document.Versions.Add(version);
+
+        // Reset the review state.
+        document.Status = "Pending Approval";
+        document.ReviewedById = null;
+        document.ReviewedAt = null;
+        document.RejectionComment = null;
+        document.ApprovedVersionId = null;
+
+        // Record the resubmission.
+        _context.DocumentHistory.Add(new DocumentHistory
+        {
+            DocumentId = document.Id,
+            UserId = engineerId,
+            Action = "Resubmitted",
+            Comment = $"Document resubmitted. Version {nextVersionNumber}.",
+            CreatedAt = now
+        });
+
+        await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        return await GetDocumentByIdAsync(
+            documentId,
+            engineerId,
+            "Engineer");
+    }
+    catch
+    {
+        await transaction.RollbackAsync();
+
+        if (File.Exists(fullPath))
+            File.Delete(fullPath);
+
+        throw;
+    }
+}
+
 }
