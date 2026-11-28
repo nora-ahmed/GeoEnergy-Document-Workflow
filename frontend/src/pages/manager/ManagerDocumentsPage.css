@@ -1,0 +1,31 @@
+
+.manager-department-filter {
+  height: 46px;
+  min-width: 160px;
+  padding: 0 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #fff;
+  color: #475569;
+  font-size: 13px;
+  outline: none;
+}
+
+.manager-department-filter:focus {
+  border-color: #2563eb;
+}
+
+.manager-department-filter::placeholder {
+  color: #94a3b8;
+}
+
+@media (max-width: 700px) {
+  .manager-department-filter {
+    width: 100%;
+  }
+}
+
+html[dir="rtl"] .manager-department-filter {
+  direction: rtl;
+  text-align: right;
+}

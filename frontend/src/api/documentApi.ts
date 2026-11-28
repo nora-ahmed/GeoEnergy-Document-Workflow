@@ -123,19 +123,28 @@ export const getDocumentDetails = async (
 
 export const resubmitDocument = async (
   documentId: number,
+  title: string,
+  documentType: string,
   file: File
 ) => {
   const formData = new FormData();
-  formData.append("File", file);
+
+  formData.append("Title", title);
+  formData.append("DocumentType", documentType);
+  formData.append("File", file, file.name);
 
   const response = await api.post(
-    `/Documents/${documentId}/resubmit`,
-    formData
-  );
+  `/Documents/${documentId}/resubmit`,
+  formData,
+  {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  }
+);
 
-  return response.data;
+return response.data;
 };
-
 export const previewDocumentVersion = async (
   versionId: number
 ): Promise<Blob> => {
@@ -156,4 +165,16 @@ export const downloadDocumentVersion = async (
   );
 
   return response.data;
+};
+
+
+export const approveDocument = async (documentId: number): Promise<void> => {
+  await api.post(`/Documents/${documentId}/approve`);
+};
+
+export const rejectDocument = async (
+  documentId: number,
+  comment: string
+): Promise<void> => {
+  await api.post(`/Documents/${documentId}/reject`, { comment });
 };
