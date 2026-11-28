@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import { AuthContext } from "./authContextDefinition";
-import { login as loginApi, getCurrentUser } from "../api/authapi";
+import { login as loginApi, getCurrentUser } from "../api/authApi";
 
 import type { CurrentUser, LoginRequest } from "../types/auth";
 
