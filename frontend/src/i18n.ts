@@ -131,6 +131,23 @@ documentDetails: {
         engineer: "Engineer",
       },
 
+managerReview: {
+  eyebrow: "DOCUMENT REVIEW",
+  backToDocuments: "Back to all documents",
+  reviewDocument: "Review Document",
+  reviewDescription: "Review the document before making an approval decision.",
+  approve: "Approve Document",
+  reject: "Reject Document",
+  confirmReject: "Confirm Rejection",
+  rejectionComment: "Rejection Comment",
+  commentPlaceholder: "Explain why this document is being rejected...",
+  commentRequired: "Please provide a rejection comment.",
+  approveSuccess: "Document approved successfully.",
+  approveError: "Unable to approve this document. Please try again.",
+  rejectSuccess: "Document rejected successfully.",
+  rejectError: "Unable to reject this document. Please try again.",
+},
+
       dashboard: {
         engineerTitle: "Your Dashboard",
         engineerSubtitle: "Here's an overview of your document activity.",
@@ -230,7 +247,16 @@ fileRequired: "Please select a document to upload.",
 unexpectedError: "Something went wrong. Please try again.",
 
       },
-
+managerDocuments: {
+  eyebrow: "DOCUMENT MANAGEMENT",
+  title: "All Documents",
+  description: "View and manage documents submitted across departments.",
+  totalDocuments: "Total Documents",
+  searchPlaceholder: "Search documents by title...",
+  departmentPlaceholder: "Filter by department...",
+  uploadedBy: "Uploaded By",
+  loadError: "Unable to load documents. Please try again.",
+},
       status: {
         pending: "Pending Approval",
         approved: "Approved",
@@ -311,6 +337,34 @@ managerDashboard: {
   uploadedAt: "تاريخ الرفع",
   noDocuments: "لم يتم تقديم أي مستندات حتى الآن.",
 },
+managerDocuments: {
+  eyebrow: "إدارة المستندات",
+  title: "جميع المستندات",
+  description: "عرض وإدارة المستندات المقدمة من جميع الأقسام.",
+  totalDocuments: "إجمالي المستندات",
+  searchPlaceholder: "ابحث عن المستندات بالعنوان...",
+  departmentPlaceholder: "تصفية حسب القسم...",
+  uploadedBy: "تم الرفع بواسطة",
+  loadError: "تعذر تحميل المستندات. حاول مرة أخرى.",
+},
+
+managerReview: {
+  eyebrow: "مراجعة المستندات",
+  backToDocuments: "العودة إلى جميع المستندات",
+  reviewDocument: "مراجعة المستند",
+  reviewDescription: "راجع المستند قبل اتخاذ قرار الموافقة أو الرفض.",
+  approve: "الموافقة على المستند",
+  reject: "رفض المستند",
+  confirmReject: "تأكيد الرفض",
+  rejectionComment: "سبب الرفض",
+  commentPlaceholder: "اشرح سبب رفض هذا المستند...",
+  commentRequired: "يرجى إدخال سبب الرفض.",
+  approveSuccess: "تمت الموافقة على المستند بنجاح.",
+  approveError: "تعذرت الموافقة على المستند. حاول مرة أخرى.",
+  rejectSuccess: "تم رفض المستند بنجاح.",
+  rejectError: "تعذر رفض المستند. حاول مرة أخرى.",
+},
+
 documentDetails: {
   eyebrow: "تفاصيل المستند",
   backToDocuments: "العودة إلى مستنداتي",

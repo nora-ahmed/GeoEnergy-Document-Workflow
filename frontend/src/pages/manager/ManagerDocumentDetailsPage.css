@@ -1,0 +1,119 @@
+
+@import "../engineer/DocumentDetailsPage.css";
+
+.manager-review-card > p {
+  color: #64748b;
+  font-size: 14px;
+  margin: 10px 0 18px;
+}
+
+.manager-review-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.manager-review-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 17px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.manager-review-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.manager-approve-button {
+  color: #fff;
+  background: #15803d;
+}
+
+.manager-approve-button:hover:not(:disabled) {
+  background: #166534;
+}
+
+.manager-reject-button {
+  color: #fff;
+  background: #dc2626;
+}
+
+.manager-reject-button:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.manager-cancel-button {
+  color: #334155;
+  background: #e2e8f0;
+}
+
+.manager-cancel-button:hover:not(:disabled) {
+  background: #cbd5e1;
+}
+
+.manager-rejection-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.manager-rejection-form label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.manager-rejection-form textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  resize: vertical;
+  color: #1e293b;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+}
+
+.manager-rejection-form textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 8%);
+}
+
+html[dir="rtl"] .manager-document-details {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .manager-review-actions {
+  flex-direction: row;
+}
+
+html[dir="rtl"] .manager-rejection-form textarea {
+  direction: rtl;
+  text-align: right;
+}
+
+@media (max-width: 650px) {
+  .manager-review-actions {
+    align-items: stretch;
+  }
+
+  .manager-review-actions button {
+    flex: 1;
+  }
+}

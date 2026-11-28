@@ -137,29 +137,39 @@ const DocumentDetailsPage = () => {
   };
 
   const handleResubmit = async () => {
-    if (!selectedFile || !document) {
-      setActionError(t("documentActions.fileRequired"));
-      return;
-    }
+  if (!selectedFile || !document) {
+    setActionError(t("documentActions.fileRequired"));
+    return;
+  }
 
-    setResubmitting(true);
-    setActionError("");
-    setActionMessage("");
+  console.log("Selected file:", selectedFile);
+  console.log("File name:", selectedFile.name);
+  console.log("File size:", selectedFile.size);
+  console.log("File type:", selectedFile.type);
 
-    try {
-      await resubmitDocument(document.id, selectedFile);
+  setResubmitting(true);
+  setActionError("");
+  setActionMessage("");
 
-      setSelectedFile(null);
-      setActionMessage(t("documentActions.resubmitSuccess"));
-      setLoading(true);
-      setRefreshKey((value) => value + 1);
-    } catch (err) {
-      console.error("Failed to resubmit document:", err);
-      setActionError(t("documentActions.resubmitError"));
-    } finally {
-      setResubmitting(false);
-    }
-  };
+  try {
+    await resubmitDocument(
+      document.id,
+      document.title,
+      document.documentType,
+      selectedFile
+    );
+
+    setSelectedFile(null);
+    setActionMessage(t("documentActions.resubmitSuccess"));
+    setLoading(true);
+    setRefreshKey((value) => value + 1);
+  } catch (err) {
+    console.error("Failed to resubmit document:", err);
+    setActionError(t("documentActions.resubmitError"));
+  } finally {
+    setResubmitting(false);
+  }
+};
 
   const handlePreview = async (
     versionId: number,

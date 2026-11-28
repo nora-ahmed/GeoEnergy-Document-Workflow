@@ -10,6 +10,8 @@ import RoleRedirect from "./routes/RoleRedirect";
 import DashboardLayout from "./layouts/DashboardLayout";
 import UploadDocumentPage from "./pages/engineer/UploadDocumentPage";
 import DocumentDetailsPage from "./pages/engineer/DocumentDetailsPage";
+import ManagerDocumentsPage from "./pages/manager/ManagerDocumentsPage";
+import ManagerDocumentDetailsPage from "./pages/manager/ManagerDocumentDetailsPage";
 
 function App() {
   return (
@@ -39,9 +41,13 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/manager" element={<ManagerDashboard />} />
             <Route
-              path="/manager/documents"
-              element={<ManagerDashboard />}
-            />
+  path="/manager/documents"
+  element={<ManagerDocumentsPage />}
+/>
+<Route
+  path="/manager/documents/:id"
+  element={<ManagerDocumentDetailsPage />}
+/>
             <Route
               path="/manager/pending"
               element={<ManagerDashboard />}
