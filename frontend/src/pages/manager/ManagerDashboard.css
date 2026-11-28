@@ -294,3 +294,131 @@
     padding: 16px;
   }
 }
+
+/* DASHBOARD CHARTS */
+
+.manager-charts-section {
+  margin-bottom: 28px;
+}
+
+.manager-charts-section > .manager-section-header {
+  margin-bottom: 18px;
+}
+
+.manager-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.manager-chart-card {
+  min-width: 0;
+  padding: 22px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.manager-chart-header {
+  margin-bottom: 12px;
+}
+
+.manager-chart-header h3 {
+  margin: 0 0 7px;
+  color: #172554;
+  font-size: 17px;
+}
+
+.manager-chart-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.manager-donut-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.manager-donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.manager-donut-center strong {
+  color: #172554;
+  font-size: 27px;
+  font-weight: 700;
+}
+
+.manager-donut-center span {
+  color: #64748b;
+  font-size: 11px;
+  text-align: center;
+}
+
+.manager-chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 12px;
+}
+
+.manager-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #475569;
+  font-size: 13px;
+}
+
+.manager-legend-dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.manager-legend-item strong {
+  margin-inline-start: auto;
+  color: #172554;
+}
+
+.manager-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+  color: #94a3b8;
+  font-size: 14px;
+  text-align: center;
+}
+
+.manager-chart-card .recharts-cartesian-axis-tick-value {
+  fill: #64748b;
+}
+
+[dir="rtl"] .manager-chart-card {
+  direction: rtl;
+}
+
+@media (max-width: 1000px) {
+  .manager-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .manager-chart-card {
+    padding: 16px;
+  }
+}

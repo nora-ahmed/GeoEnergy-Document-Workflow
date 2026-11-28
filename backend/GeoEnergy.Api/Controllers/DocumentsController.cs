@@ -251,5 +251,12 @@ public async Task<IActionResult> GetDashboard()
         return Forbid();
     }
 }
+[HttpGet("dashboard/charts")]
+[Authorize(Roles = "Manager")]
+public async Task<IActionResult> GetManagerDashboardCharts()
+{
+    var result = await _documentService.GetManagerDashboardChartsAsync();
 
+    return Ok(result);
+}
 }
