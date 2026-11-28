@@ -1,0 +1,38 @@
+
+@import "../engineer/MyDocumentsPage.css";
+
+.pending-reviews-page .pending-reviews-total {
+  border-color: #fed7aa;
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.pending-review-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: #172554;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s ease;
+}
+
+.pending-review-button:hover {
+  background: #1e40af;
+}
+
+html[dir="rtl"] .pending-review-button {
+  flex-direction: row-reverse;
+}
+
+@media (max-width: 700px) {
+  .pending-review-button {
+    padding: 8px 10px;
+  }
+}

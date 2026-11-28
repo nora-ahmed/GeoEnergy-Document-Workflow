@@ -147,7 +147,17 @@ managerReview: {
   rejectSuccess: "Document rejected successfully.",
   rejectError: "Unable to reject this document. Please try again.",
 },
-
+pendingReviews: {
+  eyebrow: "DOCUMENT REVIEW",
+  title: "Pending Reviews",
+  description: "Review and process documents waiting for your approval.",
+  pendingCount: "Awaiting your review",
+  searchPlaceholder: "Search pending documents by title...",
+  review: "Review",
+  emptyTitle: "No pending reviews",
+  emptyDescription: "There are currently no documents waiting for approval.",
+  loadError: "Unable to load pending documents. Please try again.",
+},
       dashboard: {
         engineerTitle: "Your Dashboard",
         engineerSubtitle: "Here's an overview of your document activity.",
@@ -284,7 +294,17 @@ managerDocuments: {
         name: "جيو إنرجي",
         subtitle: "نظام إدارة سير عمل المستندات",
       },
-
+pendingReviews: {
+  eyebrow: "مراجعة المستندات",
+  title: "المستندات قيد المراجعة",
+  description: "راجع المستندات التي تنتظر موافقتك واتخذ الإجراء المناسب.",
+  pendingCount: "في انتظار مراجعتك",
+  searchPlaceholder: "ابحث عن المستندات المعلقة بالعنوان...",
+  review: "مراجعة",
+  emptyTitle: "لا توجد مستندات معلقة",
+  emptyDescription: "لا توجد مستندات تنتظر الموافقة حاليًا.",
+  loadError: "تعذر تحميل المستندات المعلقة. حاول مرة أخرى.",
+},
       common: {
         welcome: "مرحباً بعودتك",
         loading: "جارٍ التحميل...",

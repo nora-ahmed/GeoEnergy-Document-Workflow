@@ -12,6 +12,7 @@ import UploadDocumentPage from "./pages/engineer/UploadDocumentPage";
 import DocumentDetailsPage from "./pages/engineer/DocumentDetailsPage";
 import ManagerDocumentsPage from "./pages/manager/ManagerDocumentsPage";
 import ManagerDocumentDetailsPage from "./pages/manager/ManagerDocumentDetailsPage";
+import PendingReviewsPage from "./pages/manager/PendingReviewsPage";
 
 function App() {
   return (
@@ -49,9 +50,9 @@ function App() {
   element={<ManagerDocumentDetailsPage />}
 />
             <Route
-              path="/manager/pending"
-              element={<ManagerDashboard />}
-            />
+  path="/manager/pending"
+  element={<PendingReviewsPage />}
+/>
           </Route>
         </Route>
 
