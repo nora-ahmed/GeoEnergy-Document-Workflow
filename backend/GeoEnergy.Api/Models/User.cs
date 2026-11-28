@@ -16,4 +16,7 @@ public class User
 
     public ICollection<DocumentHistory> HistoryEntries { get; set; }
         = new List<DocumentHistory>();
+
+        public ICollection<Notification> Notifications { get; set; }
+    = new List<Notification>();
 }

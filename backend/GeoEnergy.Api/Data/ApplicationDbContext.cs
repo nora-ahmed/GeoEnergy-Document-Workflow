@@ -15,7 +15,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Document> Documents => Set<Document>();
     public DbSet<DocumentVersion> DocumentVersions => Set<DocumentVersion>();
     public DbSet<DocumentHistory> DocumentHistory => Set<DocumentHistory>();
-
+public DbSet<Notification> Notifications => Set<Notification>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -103,5 +103,29 @@ public class ApplicationDbContext : DbContext
     .WithMany()
     .HasForeignKey(d => d.ApprovedVersionId)
     .OnDelete(DeleteBehavior.Restrict);
+   
+   modelBuilder.Entity<Notification>(entity =>
+{
+    entity.Property(n => n.Type)
+        .IsRequired()
+        .HasMaxLength(50);
+
+    entity.Property(n => n.Title)
+        .IsRequired()
+        .HasMaxLength(200);
+
+    entity.Property(n => n.Message)
+        .IsRequired()
+        .HasMaxLength(1000);
+
+    entity.HasIndex(n => new { n.UserId, n.CreatedAt });
+
+    entity.HasOne(n => n.User)
+        .WithMany(u => u.Notifications)
+        .HasForeignKey(n => n.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+});
     }
+
+    
 }

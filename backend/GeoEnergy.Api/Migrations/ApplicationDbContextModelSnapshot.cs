@@ -138,6 +138,43 @@ namespace GeoEnergy.Api.Migrations
                     b.ToTable("DocumentVersions");
                 });
 
+            modelBuilder.Entity("GeoEnergy.Api.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DocumentId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("GeoEnergy.Api.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -239,6 +276,17 @@ namespace GeoEnergy.Api.Migrations
                     b.Navigation("UploadedBy");
                 });
 
+            modelBuilder.Entity("GeoEnergy.Api.Models.Notification", b =>
+                {
+                    b.HasOne("GeoEnergy.Api.Models.User", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("GeoEnergy.Api.Models.Document", b =>
                 {
                     b.Navigation("History");
@@ -249,6 +297,8 @@ namespace GeoEnergy.Api.Migrations
             modelBuilder.Entity("GeoEnergy.Api.Models.User", b =>
                 {
                     b.Navigation("HistoryEntries");
+
+                    b.Navigation("Notifications");
 
                     b.Navigation("UploadedDocuments");
                 });
