@@ -11,7 +11,8 @@ public class DocumentService : IDocumentService
 {
     private readonly ApplicationDbContext _context;
 private readonly IWebHostEnvironment _environment;
-
+private string StorageRoot =>
+    Environment.GetEnvironmentVariable("DATA_DIR") ?? _environment.ContentRootPath;
 public DocumentService(
     ApplicationDbContext context,
     IWebHostEnvironment environment)
@@ -218,9 +219,7 @@ public DocumentService(
     // Generate a unique server-side filename.
     var storedFileName = $"{Guid.NewGuid():N}{extension}";
 
-    var uploadDirectory = Path.Combine(
-        _environment.ContentRootPath,
-        "Uploads");
+  var uploadDirectory = Path.Combine(StorageRoot, "Uploads");
 
     Directory.CreateDirectory(uploadDirectory);
 
@@ -303,7 +302,6 @@ await _context.SaveChangesAsync();
 
 await transaction.CommitAsync();
 
-        await transaction.CommitAsync();
 
         // Return document details.
         return new DocumentDetailsDto
@@ -551,9 +549,7 @@ public async Task<DocumentDetailsDto?> ResubmitDocumentAsync(
 
     var storedFileName = $"{Guid.NewGuid():N}{extension}";
 
-    var uploadDirectory = Path.Combine(
-        _environment.ContentRootPath,
-        "Uploads");
+  var uploadDirectory = Path.Combine(StorageRoot, "Uploads");
 
     Directory.CreateDirectory(uploadDirectory);
 
@@ -678,10 +674,10 @@ public async Task<DocumentFileResult?> GetDocumentFileAsync(
         throw new UnauthorizedAccessException();
 
     var uploadDirectory = Path.GetFullPath(
-        Path.Combine(_environment.ContentRootPath, "Uploads"));
+       Path.Combine(StorageRoot, "Uploads"));
 
     var fullPath = Path.GetFullPath(
-        Path.Combine(_environment.ContentRootPath, version.FilePath));
+        Path.Combine(StorageRoot, version.FilePath));
 
     // Prevent access outside the Uploads directory.
     var allowedPrefix = uploadDirectory + Path.DirectorySeparatorChar;

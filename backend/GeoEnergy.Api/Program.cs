@@ -13,12 +13,24 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+var frontendUrl = builder.Configuration["FRONTEND_URL"];
+
+var allowedOrigins = new List<string>
+{
+    "http://localhost:5173"
+};
+
+if (!string.IsNullOrWhiteSpace(frontendUrl))
+{
+    allowedOrigins.Add(frontendUrl.TrimEnd('/'));
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins(allowedOrigins.ToArray())
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -26,12 +38,23 @@ builder.Services.AddCors(options =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    )
-);
+var dataDirectory =
+    Environment.GetEnvironmentVariable("DATA_DIR")
+    ?? builder.Environment.ContentRootPath;
 
+Directory.CreateDirectory(dataDirectory);
+
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Data Source=GeoEnergy.db";
+
+if (Environment.GetEnvironmentVariable("DATA_DIR") is not null)
+{
+    connectionString = $"Data Source={Path.Combine(dataDirectory, "GeoEnergy.db")}";
+}
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(connectionString));
 // Register authentication service
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
