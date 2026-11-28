@@ -11,6 +11,7 @@ import {
   X,
   UserCircle,
   ChevronRight,
+  Bell,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -32,11 +33,13 @@ const DashboardLayout = () => {
         { label: t("navigation.overview"), path: "/manager", icon: LayoutDashboard },
         { label: t("navigation.allDocuments"), path: "/manager/documents", icon: FileText },
         { label: t("navigation.pendingReviews"), path: "/manager/pending", icon: ClipboardCheck },
+     { label: t("navigation.notifications"), path: "/manager/notifications", icon: Bell },
       ]
     : [
         { label: t("navigation.overview"), path: "/engineer", icon: LayoutDashboard },
         { label: t("navigation.myDocuments"), path: "/engineer/documents", icon: FileText },
         { label: t("navigation.uploadDocument"), path: "/engineer/upload", icon: Upload },
+    { label: t("navigation.notifications"), path: "/engineer/notifications", icon: Bell },
       ];
 
   const handleLogout = () => {

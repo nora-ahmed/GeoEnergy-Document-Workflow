@@ -13,6 +13,7 @@ import DocumentDetailsPage from "./pages/engineer/DocumentDetailsPage";
 import ManagerDocumentsPage from "./pages/manager/ManagerDocumentsPage";
 import ManagerDocumentDetailsPage from "./pages/manager/ManagerDocumentDetailsPage";
 import PendingReviewsPage from "./pages/manager/PendingReviewsPage";
+import NotificationsPage from "./pages/shared/NotificationsPage";
 
 function App() {
   return (
@@ -34,6 +35,14 @@ function App() {
   path="/engineer/documents/:id"
   element={<DocumentDetailsPage />}
 />
+<Route
+  path="/engineer/notifications"
+  element={<NotificationsPage />}
+/>
+<Route
+  path="/engineer/notifications/:id"
+  element={<NotificationsPage />}
+/>
           </Route>
         </Route>
 
@@ -52,6 +61,14 @@ function App() {
             <Route
   path="/manager/pending"
   element={<PendingReviewsPage />}
+/>
+<Route
+  path="/manager/notifications"
+  element={<NotificationsPage />}
+/>
+<Route
+  path="/manager/notifications/:id"
+  element={<NotificationsPage />}
 />
           </Route>
         </Route>
