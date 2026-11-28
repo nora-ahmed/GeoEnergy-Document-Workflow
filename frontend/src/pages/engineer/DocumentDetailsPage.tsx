@@ -1,13 +1,23 @@
+
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, FileText, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  FileText,
+  RefreshCw,
+  Eye,
+  Download,
+  Upload,
+  X,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   getDocumentDetails,
+  resubmitDocument,
+  previewDocumentVersion,
+  downloadDocumentVersion,
 } from "../../api/documentApi";
-import type {
-  DocumentDetails,
-} from "../../api/documentApi";
+import type { DocumentDetails } from "../../api/documentApi";
 import "./DocumentDetailsPage.css";
 
 const DocumentDetailsPage = () => {
@@ -20,11 +30,21 @@ const DocumentDetailsPage = () => {
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [resubmitting, setResubmitting] = useState(false);
+  const [actionMessage, setActionMessage] = useState("");
+  const [actionError, setActionError] = useState("");
+
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [previewName, setPreviewName] = useState("");
+  const [previewLoading, setPreviewLoading] = useState<number | null>(null);
+  const [downloadingVersion, setDownloadingVersion] = useState<number | null>(null);
+
   useEffect(() => {
     let cancelled = false;
 
     const loadDocument = async () => {
-      if (!id || !Number.isInteger(Number(id))) {
+      if (!id || !Number.isInteger(Number(id)) || Number(id) <= 0) {
         setError(t("documentDetails.invalidId"));
         setLoading(false);
         return;
@@ -56,6 +76,15 @@ const DocumentDetailsPage = () => {
       cancelled = true;
     };
   }, [id, refreshKey, t]);
+
+  // Release the previous preview URL when the preview changes or closes.
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const formatDate = (value: string) =>
     new Intl.DateTimeFormat(isArabic ? "ar-EG" : "en-GB", {
@@ -101,10 +130,96 @@ const DocumentDetailsPage = () => {
     };
 
     const translationKey = actionKeys[key];
+
     return translationKey
       ? t(`documentDetails.actions.${translationKey}`)
       : action;
   };
+
+  const handleResubmit = async () => {
+    if (!selectedFile || !document) {
+      setActionError(t("documentActions.fileRequired"));
+      return;
+    }
+
+    setResubmitting(true);
+    setActionError("");
+    setActionMessage("");
+
+    try {
+      await resubmitDocument(document.id, selectedFile);
+
+      setSelectedFile(null);
+      setActionMessage(t("documentActions.resubmitSuccess"));
+      setLoading(true);
+      setRefreshKey((value) => value + 1);
+    } catch (err) {
+      console.error("Failed to resubmit document:", err);
+      setActionError(t("documentActions.resubmitError"));
+    } finally {
+      setResubmitting(false);
+    }
+  };
+
+  const handlePreview = async (
+    versionId: number,
+    fileName: string
+  ) => {
+    setPreviewLoading(versionId);
+    setActionError("");
+
+    try {
+      const blob = await previewDocumentVersion(versionId);
+
+      const isSupported =
+        blob.type === "application/pdf" ||
+        blob.type.startsWith("image/") ||
+        /\.(pdf|jpe?g|png|webp)$/i.test(fileName);
+
+      if (!isSupported) {
+        setActionError(t("documentActions.noPreview"));
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      setPreviewName(fileName);
+      setPreviewUrl(url);
+    } catch (err) {
+      console.error("Failed to preview document:", err);
+      setActionError(t("documentActions.previewError"));
+    } finally {
+      setPreviewLoading(null);
+    }
+  };
+
+  const handleDownload = async (
+    versionId: number,
+    fileName: string
+  ) => {
+    setDownloadingVersion(versionId);
+    setActionError("");
+
+    try {
+      const blob = await downloadDocumentVersion(versionId);
+      const url = URL.createObjectURL(blob);
+
+      const link = window.document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      window.document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to download document:", err);
+      setActionError(t("documentActions.downloadError"));
+    } finally {
+      setDownloadingVersion(null);
+    }
+  };
+
+  const isRejected = document?.status.toLowerCase() === "rejected";
 
   return (
     <div className="document-details-page">
@@ -121,15 +236,15 @@ const DocumentDetailsPage = () => {
       ) : error ? (
         <div className="details-state details-error">
           <p>{error}</p>
-       <button
-  onClick={() => {
-    setLoading(true);
-    setError("");
-    setRefreshKey((value) => value + 1);
-  }}
->
-  {t("common.tryAgain")}
-</button>
+          <button
+            onClick={() => {
+              setLoading(true);
+              setError("");
+              setRefreshKey((value) => value + 1);
+            }}
+          >
+            {t("common.tryAgain")}
+          </button>
         </div>
       ) : document ? (
         <>
@@ -153,6 +268,69 @@ const DocumentDetailsPage = () => {
             </span>
           </header>
 
+          {actionMessage && (
+            <div className="document-action-success">
+              {actionMessage}
+            </div>
+          )}
+
+          {actionError && (
+            <div className="document-action-error">
+              {actionError}
+            </div>
+          )}
+
+          {isRejected && (
+            <section className="details-card resubmit-card">
+              <h2>{t("documentActions.resubmit")}</h2>
+
+              <p>{t("documentActions.resubmitDescription")}</p>
+
+              <label className="resubmit-file-label">
+                <Upload size={18} />
+                {t("documentActions.selectFile")}
+
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  onChange={(event) => {
+                    setSelectedFile(event.target.files?.[0] ?? null);
+                    setActionError("");
+                  }}
+                />
+              </label>
+
+              {selectedFile && (
+                <p className="selected-file-name">
+                  <FileText size={16} />
+                  {selectedFile.name}
+                </p>
+              )}
+
+              <p className="details-muted">
+                {t("documentActions.supportedFiles")}
+              </p>
+
+              <button
+                className="resubmit-button"
+                onClick={handleResubmit}
+                disabled={!selectedFile || resubmitting}
+              >
+                {resubmitting ? (
+                  <>
+                    <RefreshCw size={17} className="spin" />
+                    {t("documentActions.resubmitting")}
+                  </>
+                ) : (
+                  <>
+                    <Upload size={17} />
+                    {t("documentActions.submitReplacement")}
+                  </>
+                )}
+              </button>
+            </section>
+          )}
+
           <section className="details-card">
             <h2>{t("documentDetails.information")}</h2>
 
@@ -175,7 +353,9 @@ const DocumentDetailsPage = () => {
               </div>
               <div>
                 <span>{t("documentDetails.reviewedBy")}</span>
-                <strong>{document.reviewedByName || t("common.notAvailable")}</strong>
+                <strong>
+                  {document.reviewedByName || t("common.notAvailable")}
+                </strong>
               </div>
               <div>
                 <span>{t("documents.reviewedAt")}</span>
@@ -202,7 +382,9 @@ const DocumentDetailsPage = () => {
             </div>
 
             {document.versions.length === 0 ? (
-              <p className="details-muted">{t("documentDetails.noVersions")}</p>
+              <p className="details-muted">
+                {t("documentDetails.noVersions")}
+              </p>
             ) : (
               <div className="details-list">
                 {document.versions.map((version) => (
@@ -210,14 +392,50 @@ const DocumentDetailsPage = () => {
                     <div className="details-list-icon">
                       <FileText size={18} />
                     </div>
+
                     <div className="details-list-content">
                       <strong>
                         {t("documentDetails.version")} {version.versionNumber}
                       </strong>
                       <span>{version.originalFileName}</span>
                       <small>
-                        {version.uploadedByName} · {formatDate(version.uploadedAt)}
+                        {version.uploadedByName} ·{" "}
+                        {formatDate(version.uploadedAt)}
                       </small>
+                    </div>
+
+                    <div className="version-actions">
+                      <button
+                        className="version-action-button"
+                        title={t("documentActions.preview")}
+                        onClick={() =>
+                          handlePreview(version.id, version.originalFileName)
+                        }
+                        disabled={previewLoading === version.id}
+                      >
+                        {previewLoading === version.id ? (
+                          <RefreshCw size={17} className="spin" />
+                        ) : (
+                          <Eye size={17} />
+                        )}
+                        <span>{t("documentActions.preview")}</span>
+                      </button>
+
+                      <button
+                        className="version-action-button"
+                        title={t("documentActions.download")}
+                        onClick={() =>
+                          handleDownload(version.id, version.originalFileName)
+                        }
+                        disabled={downloadingVersion === version.id}
+                      >
+                        {downloadingVersion === version.id ? (
+                          <RefreshCw size={17} className="spin" />
+                        ) : (
+                          <Download size={17} />
+                        )}
+                        <span>{t("documentActions.download")}</span>
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -232,7 +450,9 @@ const DocumentDetailsPage = () => {
             </div>
 
             {document.history.length === 0 ? (
-              <p className="details-muted">{t("documentDetails.noHistory")}</p>
+              <p className="details-muted">
+                {t("documentDetails.noHistory")}
+              </p>
             ) : (
               <div className="details-list">
                 {document.history.map((item) => (
@@ -252,6 +472,33 @@ const DocumentDetailsPage = () => {
           </section>
         </>
       ) : null}
+
+      {previewUrl && (
+        <div className="document-preview-overlay">
+          <div className="document-preview-modal">
+            <div className="document-preview-header">
+              <h2>{previewName}</h2>
+              <button
+                onClick={() => setPreviewUrl("")}
+                aria-label={t("documentActions.closePreview")}
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <div className="document-preview-content">
+              {/\.(jpg|jpeg|png|webp)$/i.test(previewName) ? (
+                <img src={previewUrl} alt={previewName} />
+              ) : (
+                <iframe
+                  src={previewUrl}
+                  title={previewName}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

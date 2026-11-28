@@ -120,3 +120,40 @@ export const getDocumentDetails = async (
   const response = await api.get<DocumentDetails>(`/Documents/${id}`);
   return response.data;
 };
+
+export const resubmitDocument = async (
+  documentId: number,
+  file: File
+) => {
+  const formData = new FormData();
+  formData.append("File", file);
+
+  const response = await api.post(
+    `/Documents/${documentId}/resubmit`,
+    formData
+  );
+
+  return response.data;
+};
+
+export const previewDocumentVersion = async (
+  versionId: number
+): Promise<Blob> => {
+  const response = await api.get(
+    `/Documents/versions/${versionId}/preview`,
+    { responseType: "blob" }
+  );
+
+  return response.data;
+};
+
+export const downloadDocumentVersion = async (
+  versionId: number
+): Promise<Blob> => {
+  const response = await api.get(
+    `/Documents/versions/${versionId}/download`,
+    { responseType: "blob" }
+  );
+
+  return response.data;
+};
