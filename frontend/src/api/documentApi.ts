@@ -89,3 +89,34 @@ export const getDashboard = async (): Promise<DashboardData> => {
   const response = await api.get<DashboardData>("/Documents/dashboard");
   return response.data;
 };
+
+
+export interface DocumentVersion {
+  id: number;
+  versionNumber: number;
+  originalFileName: string;
+  uploadedByName: string;
+  uploadedAt: string;
+}
+
+export interface DocumentHistoryItem {
+  id: number;
+  action: string;
+  comment: string | null;
+  userFullName: string;
+  createdAt: string;
+}
+
+export interface DocumentDetails extends DocumentItem {
+  reviewedByName: string | null;
+  rejectionComment: string | null;
+  versions: DocumentVersion[];
+  history: DocumentHistoryItem[];
+}
+
+export const getDocumentDetails = async (
+  id: number
+): Promise<DocumentDetails> => {
+  const response = await api.get<DocumentDetails>(`/Documents/${id}`);
+  return response.data;
+};
