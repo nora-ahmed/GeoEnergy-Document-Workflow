@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Search, FileText, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { getDocuments } from "../../api/documentApi";
 import type {
   DocumentItem,
@@ -239,8 +240,13 @@ const MyDocumentsPage = () => {
                         </div>
 
                         <div>
-                          <strong>{doc.title}</strong>
-                          <span dir="ltr">DOC-{doc.id}</span>
+                        <Link
+  to={`/engineer/documents/${doc.id}`}
+  className="document-details-link"
+>
+  <strong>{doc.title}</strong>
+</Link>
+<span dir="ltr">DOC-{doc.id}</span>
                         </div>
                       </div>
                     </td>

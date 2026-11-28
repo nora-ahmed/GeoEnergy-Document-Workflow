@@ -9,6 +9,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleRedirect from "./routes/RoleRedirect";
 import DashboardLayout from "./layouts/DashboardLayout";
 import UploadDocumentPage from "./pages/engineer/UploadDocumentPage";
+import DocumentDetailsPage from "./pages/engineer/DocumentDetailsPage";
 
 function App() {
   return (
@@ -25,6 +26,10 @@ function App() {
             <Route
   path="/engineer/upload"
   element={<UploadDocumentPage />}
+/>
+<Route
+  path="/engineer/documents/:id"
+  element={<DocumentDetailsPage />}
 />
           </Route>
         </Route>
