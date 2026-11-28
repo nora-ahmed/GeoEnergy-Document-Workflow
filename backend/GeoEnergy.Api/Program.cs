@@ -145,7 +145,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("Frontend");
-app.UseCors("Frontend");
+
 
 app.UseAuthentication();
 app.UseAuthorization();
