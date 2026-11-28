@@ -38,4 +38,5 @@ Task<DocumentFileResult?> GetDocumentFileAsync(
     Task<DocumentDashboardDto> GetDashboardAsync(
     int userId,
     string role);
+    Task<ManagerDashboardChartsDto> GetManagerDashboardChartsAsync();
 }

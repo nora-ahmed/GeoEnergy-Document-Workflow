@@ -178,3 +178,27 @@ export const rejectDocument = async (
 ): Promise<void> => {
   await api.post(`/Documents/${documentId}/reject`, { comment });
 };
+export interface DashboardStatusCount {
+  status: string;
+  count: number;
+}
+
+export interface DashboardDepartmentCount {
+  department: string;
+  count: number;
+}
+
+export interface ManagerDashboardCharts {
+  statusCounts: DashboardStatusCount[];
+  departmentCounts: DashboardDepartmentCount[];
+}
+
+export const getManagerDashboardCharts =
+  async (): Promise<ManagerDashboardCharts> => {
+    const response = await api.get<ManagerDashboardCharts>(
+      "/Documents/dashboard/charts"
+    );
+
+    return response.data;
+  };
+  

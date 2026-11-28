@@ -730,4 +730,34 @@ public async Task<DocumentDashboardDto> GetDashboardAsync(
         RecentDocuments = recentDocuments
     };
 }
+public async Task<ManagerDashboardChartsDto> GetManagerDashboardChartsAsync()
+{
+    var documents = _context.Documents
+        .AsNoTracking();
+
+    var statusCounts = await documents
+        .GroupBy(d => d.Status)
+        .Select(g => new DashboardStatusCountDto
+        {
+            Status = g.Key,
+            Count = g.Count()
+        })
+        .ToListAsync();
+
+    var departmentCounts = await documents
+        .GroupBy(d => d.Department)
+        .Select(g => new DashboardDepartmentCountDto
+        {
+            Department = g.Key,
+            Count = g.Count()
+        })
+        .OrderByDescending(d => d.Count)
+        .ToListAsync();
+
+    return new ManagerDashboardChartsDto
+    {
+        StatusCounts = statusCounts,
+        DepartmentCounts = departmentCounts
+    };
+}
 }
