@@ -285,9 +285,23 @@ public DocumentService(
         document.Versions.Add(version);
         document.History.Add(history);
 
-        _context.Documents.Add(document);
+      _context.Documents.Add(document);
 
-        await _context.SaveChangesAsync();
+// Save first to generate the document ID.
+await _context.SaveChangesAsync();
+
+// Now create notifications using the generated ID.
+await AddManagerNotificationsAsync(
+    document.Id,
+    "DocumentUploaded",
+    "New document uploaded",
+    $"{document.Title} is waiting for approval.",
+    now);
+
+// Save the notifications.
+await _context.SaveChangesAsync();
+
+await transaction.CommitAsync();
 
         await transaction.CommitAsync();
 
@@ -417,6 +431,15 @@ public async Task<DocumentDetailsDto?> ApproveDocumentAsync(
         Comment = $"Approved version {latestVersion.VersionNumber}.",
         CreatedAt = now
     });
+    _context.Notifications.Add(new Notification
+{
+    UserId = document.UploadedById,
+    DocumentId = document.Id,
+    Type = "DocumentApproved",
+    Title = "Document approved",
+    Message = $"Your document '{document.Title}' has been approved.",
+    CreatedAt = now
+});
 
     await _context.SaveChangesAsync();
     await transaction.CommitAsync();
@@ -471,6 +494,16 @@ public async Task<DocumentDetailsDto?> RejectDocumentAsync(
         Comment = $"Version {latestVersion.VersionNumber}: {comment.Trim()}",
         CreatedAt = now
     });
+
+_context.Notifications.Add(new Notification
+{
+    UserId = document.UploadedById,
+    DocumentId = document.Id,
+    Type = "DocumentRejected",
+    Title = "Document rejected",
+    Message = $"Your document '{document.Title}' was rejected. Reason: {comment.Trim()}",
+    CreatedAt = now
+});
 
     await _context.SaveChangesAsync();
     await transaction.CommitAsync();
@@ -597,6 +630,13 @@ public async Task<DocumentDetailsDto?> ResubmitDocumentAsync(
             Comment = $"Document resubmitted. Version {nextVersionNumber}.",
             CreatedAt = now
         });
+
+await AddManagerNotificationsAsync(
+    document.Id,
+    "DocumentResubmitted",
+    "Document resubmitted",
+    $"{document.Title} has been resubmitted and is waiting for approval.",
+    now);
 
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
@@ -759,5 +799,30 @@ public async Task<ManagerDashboardChartsDto> GetManagerDashboardChartsAsync()
         StatusCounts = statusCounts,
         DepartmentCounts = departmentCounts
     };
+}
+private async Task AddManagerNotificationsAsync(
+    int documentId,
+    string type,
+    string title,
+    string message,
+    DateTime createdAt)
+{
+    var managerIds = await _context.Users
+        .Where(u => u.Role == "Manager")
+        .Select(u => u.Id)
+        .ToListAsync();
+
+    var notifications = managerIds.Select(managerId =>
+        new Notification
+        {
+            UserId = managerId,
+            DocumentId = documentId,
+            Type = type,
+            Title = title,
+            Message = message,
+            CreatedAt = createdAt
+        });
+
+    _context.Notifications.AddRange(notifications);
 }
 }
