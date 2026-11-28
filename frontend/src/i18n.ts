@@ -134,6 +134,7 @@ const resources = {
 
       navigation: {
         overview: "Overview",
+        notifications: "Notifications",
         myDocuments: "My Documents",
         uploadDocument: "Upload Document",
         allDocuments: "All Documents",
@@ -307,7 +308,17 @@ const resources = {
         unexpectedError:
           "Something went wrong. Please try again.",
       },
-
+notifications: {
+  title: "Notifications",
+  subtitle: "Stay updated on your document activities.",
+  loading: "Loading notifications...",
+  loadError: "Failed to load notifications.",
+  detailsError: "Notification not found or could not be loaded.",
+  emptyTitle: "No notifications yet",
+  emptyMessage: "You'll see updates about your documents here.",
+  back: "Back to notifications",
+  viewDocument: "View Document",
+},
       managerDocuments: {
         eyebrow: "DOCUMENT MANAGEMENT",
         title: "All Documents",
@@ -541,8 +552,19 @@ const resources = {
         engineerPortal: "بوابة المهندس",
         closeNavigation: "إغلاق القائمة",
         openNavigation: "فتح القائمة",
+        notifications: "الإشعارات",
       },
-
+notifications: {
+  title: "الإشعارات",
+  subtitle: "تابع آخر التحديثات المتعلقة بمستنداتك.",
+  loading: "جارٍ تحميل الإشعارات...",
+  loadError: "تعذر تحميل الإشعارات.",
+  detailsError: "لم يتم العثور على الإشعار أو تعذر تحميله.",
+  emptyTitle: "لا توجد إشعارات حتى الآن",
+  emptyMessage: "ستظهر هنا التحديثات المتعلقة بمستنداتك.",
+  back: "العودة إلى الإشعارات",
+  viewDocument: "عرض المستند",
+},
       roles: {
         manager: "مدير",
         engineer: "مهندس",
